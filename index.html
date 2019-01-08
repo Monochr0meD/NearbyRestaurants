@@ -20,11 +20,13 @@
     var map;
     var service;
     var infowindow;
+		var mygeoloc;
+		var placeLoc;
 
     function initialize() {
       //var pyrmont = new google.maps.LatLng(10.608,123.886); //Cebu
-      //var pyrmont = {lat: 14.3489, lng: 121.0392}; //HomeTown
-      var pyrmont = {lat: 14.5547, lng: 121.0244}; //Makati
+      var pyrmont = {lat: 14.3489, lng: 121.0392}; //HomeTown
+      //var pyrmont = {lat: 14.5547, lng: 121.0244}; //Makati
 
       map = new google.maps.Map(document.getElementById('map'), {
         center: pyrmont,
@@ -37,9 +39,8 @@
         location: pyrmont,
         radius: 2000,
         type: ['restaurant'],
-          /*fields: ['photos', 'formatted_address', 'name', 'rating', 'opening_hours', 'geometry']*/
+        //fields: ['photos', 'formatted_address', 'name', 'rating', 'opening_hours', 'geometry']
       }, callback);
-    
     // HTML5 geolocation: get your location.
     infoWindow = new google.maps.InfoWindow();
     if (navigator.geolocation) {
@@ -48,9 +49,10 @@
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-
+				//console.log(position.coords.latitude+','+position.coords.longitude);
+				mygeoloc = position.coords.latitude+','+position.coords.longitude;
         infoWindow.setPosition(mypos);
-        infoWindow.setContent('You are here: '+position.coords.latitude+','+position.coords.longitude);
+        infoWindow.setContent('You are here: '+mygeoloc);
         infoWindow.open(map);
         map.setCenter(mypos);
       }, function() {
@@ -72,25 +74,50 @@
 
     // Marker for Restaurants
     function callback(results, status) {
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
+			if (status === google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
           createMarker(results[i]);
+					//markers.push(markerLoc)
+					//console.log(markerLoc);
         }
       }
     }//end callback
 
     function createMarker(place) {
-      var placeLoc = place.geometry.location;
-      var marker = new google.maps.Marker({
-        map: map,
+			var markers = [];
+			placeLoc = place.geometry.location;
+			//placeLoc = loc;
+			var latLng = placeLoc + "";
+			getLat = latLng.substring(1, latLng.indexOf(','));
+			getLng = latLng.slice((getLat.length+2), -2);
+			lngLat = "{"+getLat+","+getLng+"}";
+			var marker = new google.maps.Marker({
+      	//map: map,
         position: place.geometry.location
+				//position: lngLat
       });
-
+			//push marker in array
+			//console.log("lat: "+getLat);
+			//console.log("lng: "+getLng);
+			var lat = getLat;
+			var lng = getLng;
+			//markerLoc = lat+","+lng;
+			//var markClust = new google.maps.Marker
+			markers.push(marker);//(getLat+","+getLng);
+			//console.log("markers: "+markers);
+			//info window
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(place.name + ", "+placeLoc);
+        infowindow.setContent(place.name + ", "+latLng);
         infowindow.open(map, this);
       });
+			createCluster(markers);
+			//console.log("placeLoc :"+place.name+" "+placeLoc)
     }//end createMarker
+		//create cluster
+		function createCluster(markers){
+			var markerCluster = new MarkerClusterer(map,markers, {imagePath: 'm1'})
+			console.log("cluster: "+markerCluster);
+		}
 
     //Directions API
     var directionsDisplay = new google.maps.DirectionsRenderer;
@@ -99,13 +126,13 @@
     directionsDisplay.setMap(map); // map should be already initialized.
 
     function displayRoute() {
-      var a1 = document.getElementById("startlat").value;
-      var a2 = document.getElementById("startlng").value;
-      var b1 = document.getElementById("endlat").value;
-      var b2 = document.getElementById("endlat").value;
-      var start = new google.maps.LatLng(a1,a2)
-      var end = new google.maps.LatLng(b1,b2);
-      var request = {
+      //var start = document.getElementById("start").value;
+			var end = document.getElementById("end").value;
+			var start = mygeoloc;
+			//var end = placeLoc;
+			//console.log("start:"+start);
+			//console.log("end:"+end);
+			var request = {
         origin : start,
         destination : end,
         travelMode : 'DRIVING'
@@ -118,26 +145,27 @@
       })
 
     }//end displayRoute
-
-    /*ocument.getElementById('get').onclick = function(){
+		//get direction button is clicked
+    document.getElementById('get').onclick = function(){
         displayRoute();
-      }*/
+      }
 
   }//end initialize
 </script>
 
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?v=weekly
-        &key=AIzaSyDDgeCj3lB855BPlkPcoGd1Pd5ukJPpVpU&libraries=places,geometry,directions&callback=initialize">
+    src="https://maps.googleapis.com/maps/api/js?v=quaterly&key=AIzaSyDDgeCj3lB855BPlkPcoGd1Pd5ukJPpVpU&libraries=places,geometry,directions&callback=initialize">
 </script>
+<script type ="text/javascript" scr="data.json"></script>
+<script type="text/javascript" src="markerclusterer.js"></script>
+
 
 <body>
 	<div id="map"></div>
-  <div>start(latitude): <input type="text" id="startlat" name="startlat">
-  start(longitude): <input type="text" id="startlng" name="startlng"></div>
-  <div>end(latitude): <input type="text" id="endlat" name="endlat">
-  end(longitude): <input type="text" id="endlng" name="endlng"></div>
-  <div><button id="get" onclick="displayRoute()">Get Directions</button></div>
+	<div> <!--<input type="text" id="start" name="start">-->
+  From <strong>YOUR LOCATION</strong> to destination <i>(latitude and longitude only)</i>: </script><input type="text" id="end" name="end">
+  <div><button id="get">Get Directions</button></div>
+	<!--<script>console.log(value)</script>-->
 
 
 </body>
