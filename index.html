@@ -41,6 +41,7 @@
         type: ['restaurant'],
         //fields: ['photos', 'formatted_address', 'name', 'rating', 'opening_hours', 'geometry']
       }, callback);
+
     // HTML5 geolocation: get your location.
     infoWindow = new google.maps.InfoWindow();
     if (navigator.geolocation) {
@@ -115,7 +116,7 @@
     }//end createMarker
 		//create cluster
 		function createCluster(markers){
-			var markerCluster = new MarkerClusterer(map,markers, {imagePath: 'm1'})
+			var markerCluster = new MarkerClusterer(map,markers, {imagePath:'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'});
 			console.log("cluster: "+markerCluster);
 		}
 
@@ -154,10 +155,10 @@
 </script>
 
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?v=quaterly&key=AIzaSyDDgeCj3lB855BPlkPcoGd1Pd5ukJPpVpU&libraries=places,geometry,directions&callback=initialize">
+    src="https://maps.googleapis.com/maps/api/js?v=quaterly&key=AIzaSyDDgeCj3lB855BPlkPcoGd1Pd5ukJPpVpU&libraries=places,geometry,directions&ext=.js&callback=initialize">
 </script>
 <script type ="text/javascript" scr="data.json"></script>
-<script type="text/javascript" src="markerclusterer.js"></script>
+<script type="text/javascript" src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 
 
 <body>
@@ -170,3 +171,4 @@
 
 </body>
 </html>
+
