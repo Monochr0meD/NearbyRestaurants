@@ -93,7 +93,7 @@
 		var getLng = latLng.slice((getLat.length+2), -2);
 		var placeLatLng = getLat+","+getLng;
 		var marker = new google.maps.Marker({
-      		//map: map,
+      		map: map,
         	position: place.geometry.location
 				//position: lngLat
      	 });
